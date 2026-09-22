@@ -19,7 +19,7 @@ Dependency được tách theo phạm vi: `airflow/requirements.txt` cho Airflow
 docker compose up -d --build
 ```
 
-Image cũng cài `dbt-core` và adapter `dbt-clickhouse`. dbt project và cấu hình kết nối ClickHouse được quản lý riêng, không dùng `AIRFLOW_DB_URL` (đó chỉ là metadata database của Airflow).
+dbt được cài trong virtualenv riêng `/opt/dbt-venv` của image Airflow. Nhờ vậy dbt và Airflow không dùng chung dependency Python, tránh xung đột `protobuf`; khi DAG chạy, LocalExecutor chỉ tạo process dbt trong `airflow-scheduler`, không tạo container mới. dbt project và cấu hình kết nối ClickHouse được quản lý riêng, không dùng `AIRFLOW_DB_URL` (đó chỉ là metadata database của Airflow).
 
 ## dbt project
 
@@ -33,10 +33,10 @@ Thư mục `./dbt/` là dbt project độc lập, được mount vào container 
 Điền các biến `CLICKHOUSE_*` trong `.env`, sau đó kiểm tra kết nối:
 
 ```powershell
-docker compose exec airflow-scheduler dbt debug --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt
+docker compose exec airflow-scheduler /opt/dbt-venv/bin/dbt debug --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt
 ```
 
-Khi gọi từ DAG, task dùng cùng lệnh `dbt build --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt`.
+File DAG mẫu `airflow/dags/dbt_clickhouse_build.py` gọi `/opt/dbt-venv/bin/dbt build`. DAG này không có lịch chạy (`schedule=None`); trigger thủ công trong Airflow UI sau khi `dbt debug` thành công.
 
 ## Đường dẫn và kết nối
 
