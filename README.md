@@ -13,11 +13,30 @@ Lần đầu chạy sẽ build image cục bộ có FAB Auth Manager, sau đó `
 
 Các service Airflow chạy thường trực là `airflow-api-server`, `airflow-scheduler` và `airflow-dag-processor`. Service `airflow-init` chỉ chạy một lần để migrate các bảng metadata.
 
-Các Python provider/package bổ sung được khai báo trong `airflow/requirements.txt`. Sau khi thay đổi file này, build lại image:
+Dependency được tách theo phạm vi: `airflow/requirements.txt` cho Airflow provider/package và `dbt/requirements.txt` cho dbt adapter/package. Sau khi thay đổi một trong hai file, build lại image:
 
 ```powershell
 docker compose up -d --build
 ```
+
+Image cũng cài `dbt-core` và adapter `dbt-clickhouse`. dbt project và cấu hình kết nối ClickHouse được quản lý riêng, không dùng `AIRFLOW_DB_URL` (đó chỉ là metadata database của Airflow).
+
+## dbt project
+
+Thư mục `./dbt/` là dbt project độc lập, được mount vào container tại `/opt/airflow/dbt`:
+
+- `dbt/dbt_project.yml`: cấu hình project.
+- `dbt/profiles.yml`: cấu hình adapter ClickHouse qua biến môi trường.
+- `dbt/requirements.txt`: dependency của dbt, gồm `dbt-core` và `dbt-clickhouse`.
+- `dbt/models/`: chứa model SQL.
+
+Điền các biến `CLICKHOUSE_*` trong `.env`, sau đó kiểm tra kết nối:
+
+```powershell
+docker compose exec airflow-scheduler dbt debug --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt
+```
+
+Khi gọi từ DAG, task dùng cùng lệnh `dbt build --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt`.
 
 ## Đường dẫn và kết nối
 

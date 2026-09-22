@@ -1,0 +1,12 @@
+name: clickhouse_transformations
+version: "1.0.0"
+config-version: 2
+
+profile: clickhouse_transformations
+
+model-paths: ["models"]
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  clickhouse_transformations:
+    +materialized: view

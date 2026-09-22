@@ -12,8 +12,16 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     # FAB xác thực bằng user/password lưu trong PostgreSQL metadata database.
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    DBT_PROFILES_DIR: /opt/airflow/dbt
+    CLICKHOUSE_HOST: ${CLICKHOUSE_HOST:-}
+    CLICKHOUSE_PORT: ${CLICKHOUSE_PORT:-8123}
+    CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+    CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+    CLICKHOUSE_DATABASE: ${CLICKHOUSE_DATABASE:-default}
+    CLICKHOUSE_SECURE: ${CLICKHOUSE_SECURE:-false}
   volumes:
     - ./airflow/dags:/opt/airflow/dags
+    - ./dbt:/opt/airflow/dbt
     - airflow-logs:/opt/airflow/logs
 
 services:
