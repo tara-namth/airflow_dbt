@@ -1,0 +1,5 @@
+# Providers/packages dùng chung cho các service Airflow.
+apache-airflow-providers-fab
+pandas
+numpy
+psycopg2-binary

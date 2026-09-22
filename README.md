@@ -13,6 +13,12 @@ Lần đầu chạy sẽ build image cục bộ có FAB Auth Manager, sau đó `
 
 Các service Airflow chạy thường trực là `airflow-api-server`, `airflow-scheduler` và `airflow-dag-processor`. Service `airflow-init` chỉ chạy một lần để migrate các bảng metadata.
 
+Các Python provider/package bổ sung được khai báo trong `airflow/requirements.txt`. Sau khi thay đổi file này, build lại image:
+
+```powershell
+docker compose up -d --build
+```
+
 ## Đường dẫn và kết nối
 
 | Thành phần | Giá trị |
