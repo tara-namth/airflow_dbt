@@ -6,8 +6,12 @@ Khởi động:
 
 ```powershell
 Copy-Item .env.example .env
-docker compose up -d --build
+docker compose up -d --build --wait
 ```
+
+`--wait` làm lệnh chỉ hoàn tất sau khi các service đã sẵn sàng; riêng
+`airflow-api-server` được kiểm tra qua `/api/v2/monitor/health`. Scheduler và
+dag processor cũng chờ API server healthy trước khi khởi động.
 
 Trước khi khởi động, thay `AIRFLOW_JWT_SECRET` trong `.env` bằng một chuỗi ngẫu
 nhiên dài (ít nhất 32 ký tự). Secret này phải được dùng chung bởi tất cả service
