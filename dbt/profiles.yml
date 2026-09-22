@@ -8,5 +8,7 @@ clickhouse_transformations:
       user: "{{ env_var('CLICKHOUSE_USER', 'default') }}"
       password: "{{ env_var('CLICKHOUSE_PASSWORD', '') }}"
       schema: "{{ env_var('CLICKHOUSE_DATABASE', 'default') }}"
-      secure: "{{ env_var('CLICKHOUSE_SECURE', 'false') | as_bool }}"
+      # dbt's as_bool filter accepts Python boolean literals (True/False), not
+      # lowercase strings such as "false" commonly used in Docker env files.
+      secure: "{{ env_var('CLICKHOUSE_SECURE', 'False') | as_bool }}"
       threads: 4

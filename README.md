@@ -9,6 +9,14 @@ Copy-Item .env.example .env
 docker compose up -d --build
 ```
 
+Trước khi khởi động, thay `AIRFLOW_JWT_SECRET` trong `.env` bằng một chuỗi ngẫu
+nhiên dài (ít nhất 32 ký tự). Secret này phải được dùng chung bởi tất cả service
+Airflow để scheduler xác thực với Execution API. Có thể tạo nhanh trong PowerShell:
+
+```powershell
+[Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 }))
+```
+
 Lần đầu chạy sẽ build image cục bộ có FAB Auth Manager, sau đó `airflow-init` migrate metadata database và tạo tài khoản admin.
 
 Các service Airflow chạy thường trực là `airflow-api-server`, `airflow-scheduler` và `airflow-dag-processor`. Service `airflow-init` chỉ chạy một lần để migrate các bảng metadata.
@@ -30,7 +38,9 @@ Thư mục `./dbt/` là dbt project độc lập, được mount vào container 
 - `dbt/requirements.txt`: dependency của dbt, gồm `dbt-core` và `dbt-clickhouse`.
 - `dbt/models/`: chứa model SQL.
 
-Điền các biến `CLICKHOUSE_*` trong `.env`, sau đó kiểm tra kết nối:
+Điền các biến `CLICKHOUSE_*` trong `.env`, sau đó kiểm tra kết nối. Đặt
+`CLICKHOUSE_SECURE=False` (chữ hoa đầu) cho HTTP không TLS hoặc `True` khi
+ClickHouse dùng TLS:
 
 ```powershell
 docker compose exec airflow-scheduler /opt/dbt-venv/bin/dbt debug --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt

@@ -9,6 +9,9 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     # Airflow 3 cần task process gọi lại Execution API của api-server.
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
+    # Phải giống nhau ở api-server, scheduler và dag-processor để các JWT của
+    # Execution API được xác thực được giữa các process/container.
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET:?Set AIRFLOW_JWT_SECRET in .env to a long random value}
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     # FAB xác thực bằng user/password lưu trong PostgreSQL metadata database.
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
@@ -18,7 +21,7 @@ x-airflow-common: &airflow-common
     CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
     CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
     CLICKHOUSE_DATABASE: ${CLICKHOUSE_DATABASE:-default}
-    CLICKHOUSE_SECURE: ${CLICKHOUSE_SECURE:-false}
+    CLICKHOUSE_SECURE: ${CLICKHOUSE_SECURE:-False}
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./dbt:/opt/airflow/dbt
